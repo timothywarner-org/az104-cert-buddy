@@ -1,5 +1,8 @@
 # AZ-104 Cert Buddy
 
+![AZ-104](https://img.shields.io/badge/Exam-AZ--104-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-Agent-8957e5?style=for-the-badge&logo=github-copilot&logoColor=white) ![MCP](https://img.shields.io/badge/MCP-Enabled-00B4D8?style=for-the-badge) ![Microsoft Learn](https://img.shields.io/badge/Grounded_in-Microsoft_Learn-258fdb?style=for-the-badge&logo=microsoft&logoColor=white)
+[![YouTube](https://img.shields.io/badge/Watch-YouTube_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=9RZWTgNTy90) [![Website](https://img.shields.io/badge/TechTrainerTim.com-Visit_Site-2ea44f?style=for-the-badge&logo=google-chrome&logoColor=white)](https://TechTrainerTim.com)
+
 An AI-powered study companion for the **Microsoft Azure Administrator (AZ-104)** certification exam, built entirely on GitHub Copilot agents. There is no application code here -- just agent definitions, skill specs, prompt templates, and MCP server configurations that turn GitHub Copilot Chat into an interactive exam coach.
 
 The agent generates **exam-realistic practice questions** with interactive answer evaluation and **short practice labs** (10-20 minutes) with built-in validation and cleanup. All content is original and grounded in Microsoft Learn documentation.
@@ -40,7 +43,14 @@ You will need the following before getting started:
    @az104-cert-buddy-agent Generate 5 practice questions on Azure RBAC
    ```
 
-   Or use the included prompt template from `.github/prompts/az104-practice-questions.prompt.md` to generate a single question with guided input fields for skill area, objective, Bloom level, difficulty, and item type.
+   Or use the included prompt templates via slash commands. Type `/` in Copilot Chat to see them:
+
+   ```
+   /az104-practice-question
+   /az104-practice-lab
+   ```
+
+   Slash commands open guided input fields (skill area, objective, difficulty, etc.) before generating content.
 
 ## How to Use It
 
@@ -54,12 +64,18 @@ Ask the agent for one or more practice questions on any AZ-104 topic. The intera
 
 If you requested multiple questions, the agent delivers them one at a time, repeating this cycle for each question.
 
-Example prompts:
+Example prompts (via agent):
 
 ```
 @az104-cert-buddy-agent Generate 3 questions on virtual network peering
 @az104-cert-buddy-agent Give me a hard Apply-level question about storage account access keys
 @az104-cert-buddy-agent Quiz me on Microsoft Entra Conditional Access
+```
+
+Or use the slash command for a guided single-question flow:
+
+```
+/az104-practice-question
 ```
 
 ### Practice Labs
@@ -68,16 +84,22 @@ Ask the agent for a hands-on lab. Labs are scoped to 10-20 minutes and include:
 
 - A single AZ-104 objective
 - Prerequisites and starting state
-- Numbered task steps (Azure CLI by default, or Portal/PowerShell if you specify)
+- Numbered task steps (Azure portal by default, or CLI/PowerShell if you specify)
 - Validation gates after each major step so you can confirm success
 - Troubleshooting tips for common failures
 - Cleanup steps that remove all created resources
 
-Example prompts:
+Example prompts (via agent):
 
 ```
 @az104-cert-buddy-agent Create a 15-minute lab on locking down a storage account with a private endpoint
 @az104-cert-buddy-agent Build a lab on configuring Azure DNS using PowerShell
+```
+
+Or use the slash command for a guided lab flow:
+
+```
+/az104-practice-lab
 ```
 
 ### Providing Reference Material
