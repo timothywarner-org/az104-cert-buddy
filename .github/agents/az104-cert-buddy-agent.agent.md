@@ -80,3 +80,4 @@ If the user requests multiple questions, deliver them **one at a time** using th
 - If the user does not specify a skill area, pick one from the AZ-104 study guide and state it.
 - If the user does not specify Portal vs CLI vs PowerShell, default to **Azure CLI** for labs.
 - If ambiguity exists, make the smallest safe assumption and state it in one sentence.
+- Use fictional company names from references/fictional-companies.md for scenario context in questions and labs.

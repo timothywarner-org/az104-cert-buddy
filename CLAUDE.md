@@ -21,6 +21,9 @@ This is a **content-only repository** for an AZ-104 certification study buddy po
 .vscode/mcp.json                           # MCP server definitions (workspace-scoped)
 references/
   az104-objectives.md                      # AZ-104 skills-measured reference (April 2025)
+  fictional-companies.md                   # Microsoft fictional company names for scenarios
+  style-guide.md                           # Microsoft Writing Style Guide key principles
+  style-guide.pdf                          # Microsoft Writing Style Guide (full source PDF)
 ```
 
 ### How It Works

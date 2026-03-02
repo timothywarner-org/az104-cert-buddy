@@ -24,6 +24,7 @@ description: Generate AZ-104 practice questions that feel like the real exam wit
 **Microsoft style:**
 
 - Follow Microsoft sentence-style capitalization and UI-label rules.
+- See references/style-guide.md for detailed Microsoft writing style rules.
 
 ### Guardrails
 
@@ -51,7 +52,7 @@ description: Generate AZ-104 practice questions that feel like the real exam wit
 1. Pull current AZ-104 skill areas and choose a target objective to measure.
 2. Ground the intended correct behavior in Microsoft Learn.
 3. If the item touches CLI/PowerShell/SDK specifics, invoke Context7 MCP to confirm syntax and version drift.
-4. Draft a workplace scenario stem (Contoso/Fabrikam/Tailwind/etc.) that forces a real admin decision.
+4. Draft a workplace scenario stem using a fictional company from references/fictional-companies.md that forces a real admin decision.
 5. Write 1 correct answer and 3 distractors based on common-but-wrong admin assumptions.
 6. Run a mutual exclusivity check on answer choices.
 7. Run a terminology check: confirm every Azure product name matches the current name (see rename table in copilot-instructions.md).

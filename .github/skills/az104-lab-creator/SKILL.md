@@ -20,6 +20,7 @@ description: Create short AZ-104 practice labs (10-20 minutes) that are executab
 **Microsoft style:**
 
 - Use Microsoft instruction formatting conventions for UI labels, commands, and dialog names.
+- See references/style-guide.md for detailed Microsoft writing style rules.
 
 ### Guardrails
 
@@ -29,6 +30,7 @@ description: Create short AZ-104 practice labs (10-20 minutes) that are executab
 - No ambiguous "click around until" steps.
 - Always include cleanup steps that remove created resources.
 - Always use current Microsoft product names. Never use retired names such as "Azure AD" (use "Microsoft Entra ID"), "Azure AD Connect" (use "Microsoft Entra Connect"), and so on. See the full rename table in `.github/copilot-instructions.md`. If a lab touches identity or governance, double-check every product name against current terminology.
+- Use fictional company names from references/fictional-companies.md for any scenario context in lab titles or descriptions.
 
 ### Workflow
 
