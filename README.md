@@ -32,10 +32,9 @@ If you already have hands-on Azure experience, you can proceed directly with thi
 | --- | --- |
 | **VS Code** | IDE with Copilot Chat support |
 | **GitHub Copilot Chat extension** | Runs the agent and skills inside VS Code |
-| **Node.js** (for `npx`) | Launches the Context7 and Azure MCP servers |
-| **Python** (for `uvx`) | Launches the MarkItDown MCP server |
-| **Context7 API key** | Required by the Context7 MCP server for version-specific documentation lookups. VS Code prompts you for this key on first use. Get your key from the [Context7 website](https://context7.com). |
 | **Azure subscription** | Needed only if you want to run practice labs against real Azure resources |
+
+No API keys, Node.js, or Python are required. The Microsoft Learn MCP server is a free hosted service with no sign-up.
 
 ## Quick Start
 
@@ -51,7 +50,7 @@ If you already have hands-on Azure experience, you can proceed directly with thi
    code az104-cert-buddy
    ```
 
-3. The three MCP servers are defined in `.vscode/mcp.json` and will auto-configure when the workspace loads. VS Code will prompt you for your Context7 API key on first use.
+3. The Microsoft Learn MCP server is defined in `.vscode/mcp.json` and auto-configures when the workspace loads. No API keys or setup is required.
 
 4. Open **GitHub Copilot Chat** and invoke the agent:
 
@@ -64,19 +63,20 @@ If you already have hands-on Azure experience, you can proceed directly with thi
    ```text
    /az104-practice-question
    /az104-practice-lab
+   /az104-study-planner
    ```
 
    Slash commands open guided input fields (skill area, objective, difficulty, etc.) before generating content.
 
 ### Verify Setup
 
-After opening the workspace, confirm that all three MCP servers started successfully:
+After opening the workspace, confirm that the MCP server started successfully:
 
 1. Open the **Output** panel in VS Code (**View > Output**).
-2. Select each MCP server from the dropdown: `az104buddy-context7`, `az104buddy-azure`, `az104buddy-markitdown`.
-3. Verify that each server shows a successful startup message with no errors.
+2. Select the MCP server `az104buddy-mslearn` from the dropdown.
+3. Verify that the server shows a successful startup message with no errors.
 
-If a server fails to start, see the [Troubleshooting](#troubleshooting) section below.
+If the server fails to start, see the [Troubleshooting](#troubleshooting) section below.
 
 ## How to Use It
 
@@ -148,15 +148,17 @@ Not sure what to study? Ask the agent for a personalized study plan:
 @az104-cert-buddy-agent Create a study plan for me
 ```
 
+Or use the slash command:
+
+```text
+/az104-study-planner
+```
+
 The agent presents the five AZ-104 skill areas with exam weights, asks you to rate your confidence in each, then generates a prioritized plan with estimated hours and Microsoft Learn module links.
-
-### Providing Reference Material
-
-If you have study notes, PDFs, or Office documents you want the agent to incorporate, mention them in chat. The agent uses the **MarkItDown** MCP server to convert those files into markdown and then grounds any claims against Microsoft Learn.
 
 ## Skills
 
-The agent orchestrates three skills, each defined in its own `SKILL.md` file:
+The agent orchestrates three skills, each defined in its own `SKILL.md` file and auto-discovered from `.github/skills/`:
 
 ### az104-item-creator
 
@@ -164,14 +166,14 @@ The agent orchestrates three skills, each defined in its own `SKILL.md` file:
 
 Generates exam-realistic AZ-104 practice questions. Each question includes:
 
-- A workplace scenario stem (using fictional companies like Contoso, Fabrikam, or Tailwind Traders)
-- Four answer choices (A-D) with exactly one correct answer
+- A workplace scenario stem (using randomized fictional companies from a list of 50+)
+- Four answer choices (A-D) with exactly one correct answer, randomized position
 - Plausible distractors based on common admin misconceptions (no fake services or flags)
 - A two-sentence rationale per choice (delivered only after you answer)
 - Microsoft Learn references
 - Support for "hint" (eliminate a distractor) and "skip" (reveal the answer)
 
-The skill enforces a quality checklist covering scenario realism, single-skill measurement, terminology correctness, grammar parallelism, and rationale depth.
+The skill enforces a quality checklist covering scenario realism, single-skill measurement, terminology correctness, grammar parallelism, rationale depth, answer position randomization, and fictional company variety.
 
 ### az104-lab-creator
 
@@ -182,7 +184,7 @@ Generates short, self-validating practice labs. Each lab includes:
 - A single AZ-104 objective and estimated completion time
 - Prerequisites and required permissions
 - Step-by-step tasks with exact commands or UI instructions
-- Validation gates (Azure MCP queries that confirm each step succeeded)
+- Validation gates that confirm each step succeeded
 - Troubleshooting entries for common failures
 - Complete cleanup steps that reverse all changes
 
@@ -194,15 +196,13 @@ Labs prefer the lowest-cost Azure resources and include a cost warning when that
 
 Generates a personalized study plan based on your self-assessed confidence across the five AZ-104 skill areas. The plan prioritizes weak areas first, provides estimated study hours, and links to specific Microsoft Learn modules.
 
-## MCP Servers
+## MCP Server
 
-Three Model Context Protocol servers are configured in `.vscode/mcp.json`. They start automatically when the workspace loads.
+One Model Context Protocol server is configured in `.vscode/mcp.json`. It starts automatically when the workspace loads.
 
 | Server ID | Technology | Purpose |
 | --- | --- | --- |
-| `az104buddy-context7` | `npx @upstash/context7-mcp@1.0.31` | Retrieves version-specific documentation and code snippets for Azure CLI, Az PowerShell, Bicep, and ARM templates. Ensures command syntax is current and accurate. |
-| `az104buddy-markitdown` | `uvx markitdown-mcp@0.0.1a4` | Converts PDFs, Word documents, and other file formats into markdown so the agent can ingest your reference material. |
-| `az104buddy-azure` | `npx @azure/mcp@latest` | Connects to Azure to validate that resource types, CLI commands, properties, and flags actually exist. Used by the lab skill to confirm that validation queries detect success or failure correctly. |
+| `az104buddy-mslearn` | `https://learn.microsoft.com/api/mcp` (HTTP) | Free Microsoft Learn MCP server -- no API keys, no sign-up. Provides `microsoft_docs_search` (search Learn docs), `microsoft_docs_fetch` (fetch full pages), and `microsoft_code_sample_search` (find official code samples). Grounds all content in official Microsoft documentation. |
 
 ## Exam Resources
 
@@ -226,20 +226,21 @@ Three Model Context Protocol servers are configured in `.vscode/mcp.json`. They 
 The agent enforces several non-negotiable rules across all generated content:
 
 - **Current terminology only.** Retired Azure product names are never used. For example, "Azure AD" is always replaced with "Microsoft Entra ID." A full rename table is maintained in `.github/copilot-instructions.md`.
-- **Grounded in Microsoft Learn.** Every question and lab is grounded in official Microsoft Learn documentation (accessed via Context7 and Copilot web search) before any other source is consulted. Microsoft Learn URLs are included as references.
+- **Grounded in Microsoft Learn.** Every question and lab is grounded in official Microsoft Learn documentation (accessed via the Microsoft Learn MCP server) before any other source is consulted. Microsoft Learn URLs are included as references.
 - **Original content only.** The agent does not recreate, paraphrase, or reference real exam questions, braindumps, or leaked content. Every scenario and stem is written from scratch.
 - **No contractions.** All generated text avoids contractions.
 - **No trick wording.** Negative words are avoided; when necessary, they are bolded and capitalized.
 - **Distractors must be real.** Wrong answer choices reference actual Azure services, flags, and features -- never invented ones.
 - **Labs include cleanup.** Every practice lab ends with steps that remove all resources created during the exercise.
+- **Answer randomization.** The correct answer position is randomized across A, B, C, and D -- never always the same letter.
+- **Company randomization.** Fictional company names are drawn from a list of 50+ Microsoft companies, not always Contoso.
+- **Microsoft style.** All content follows the Microsoft Writing Style Guide (sentence-style capitalization, input-neutral verbs, Oxford comma, etc.).
 
 ## Troubleshooting
 
 | Problem | Cause | Fix |
 | --- | --- | --- |
-| MCP server fails to start | Node.js or Python not installed | Install [Node.js](https://nodejs.org/) (for Context7 and Azure MCP) or [Python](https://www.python.org/) with `pipx`/`uvx` (for MarkItDown) |
-| Context7 prompts for API key repeatedly | Key not saved in VS Code | When prompted, enter your Context7 API key and select "Save for workspace" |
-| Azure MCP cannot connect | No Azure CLI login session | Run `az login` in your terminal before opening VS Code |
+| MCP server fails to start | Network connectivity issue | The Microsoft Learn MCP server is hosted at `learn.microsoft.com/api/mcp` -- verify you have internet access |
 | Agent does not appear in Copilot Chat | Extension not installed or workspace not loaded | Install the **GitHub Copilot Chat** extension and open this folder as a workspace |
 | Slash commands do not appear | Copilot Chat not recognizing prompt files | Close and reopen VS Code; ensure `.github/prompts/` files are present |
 | "Tool not found" errors | MCP server ID mismatch | Verify that tool IDs in agent/prompt files match server IDs in `.vscode/mcp.json` |
@@ -257,6 +258,7 @@ The agent enforces several non-negotiable rules across all generated content:
   prompts/
     az104-practice-questions.prompt.md  Prompt template for single practice questions
     az104-practice-lab.prompt.md        Prompt template for practice labs
+    az104-study-planner.prompt.md       Prompt template for study plans
   copilot-instructions.md              Workspace-level Copilot instructions and rename table
   workflows/
     validate.yml                       CI validation pipeline (non-blocking)
@@ -274,6 +276,7 @@ references/
   fictional-companies.md               Microsoft fictional company names for scenarios
   style-guide.md                       Microsoft Writing Style Guide key principles
   style-guide.pdf                      Microsoft Writing Style Guide (full source PDF)
+reference/                             AB-900 cert buddy reference implementation
 ```
 
 ## Help and Support

@@ -21,7 +21,7 @@ Have an idea for a new agent skill or prompt template? Open an issue describing:
 
 - What the skill or prompt would do
 - Which AZ-104 objective(s) it would cover
-- How it would differ from the existing `az104-item-creator` and `az104-lab-creator` skills
+- How it would differ from the existing `az104-item-creator`, `az104-lab-creator`, and `az104-study-planner` skills
 
 ### Improve Reference Documents
 
@@ -109,11 +109,9 @@ The `agent` field must reference the agent by its frontmatter `name` (currently 
 
 ### MCP Server References
 
-Tool IDs used in agent and prompt files must match the server IDs defined in `.vscode/mcp.json`. The current server IDs are:
+Tool IDs used in agent and prompt files must match the server IDs defined in `.vscode/mcp.json`. The current server ID is:
 
-- `az104buddy-azure`
-- `az104buddy-context7`
-- `az104buddy-markitdown`
+- `az104buddy-mslearn` -- Microsoft Learn MCP (free, no API key)
 
 ## Pull Request Process
 

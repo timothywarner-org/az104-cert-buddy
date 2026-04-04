@@ -1,12 +1,10 @@
 ---
 name: az104-practice-question
-description: "Generate one exam-realistic AZ-104 practice question grounded in Microsoft Learn and validated for syntax."
-argument-hint: "skillArea='Manage identities and governance' objective='RBAC role assignments' bloom='Apply' difficulty='medium' itemType='multiple-choice'"
+description: "Quiz me on AZ-104 topics with exam-realistic questions."
+argument-hint: "skillArea='storage' bloom='Apply' difficulty='medium'"
 agent: az104-cert-buddy-agent
 tools:
-  - az104buddy-azure/*
-  - az104buddy-context7/*
-  - az104buddy-markitdown/*
+  - az104buddy-mslearn/*
 ---
 
 # AZ-104 Practice Question
@@ -23,18 +21,20 @@ You must follow the workspace skill **az104-item-creator** for item structure, g
 - Objective: ${input:objective:Specific objective line to measure (optional)}
 - Bloom: ${input:bloom:Remember | Understand | Apply | Analyze}
 - Difficulty: ${input:difficulty:easy | medium | hard}
-- Item type: ${input:itemType:multiple-choice (A-D, single answer)}
 
 ## Grounding and validation rules
 
-1. Ground the correct behavior in **Microsoft Learn** using **Context7** tools (which index Learn documentation) and Copilot web search.
-2. If the item includes CLI/PowerShell syntax, confirm with **Context7** tools.
-3. If you claim a command/property exists or works in a particular way, sanity-check with **Azure MCP** tools.
-4. Provide **Microsoft Learn URLs** in the Phase 2 References section.
+1. Ground the correct behavior in **Microsoft Learn** using the **Microsoft Learn MCP** server (`microsoft_docs_search`, then `microsoft_docs_fetch` for detail).
+2. If the item includes CLI/PowerShell syntax, confirm with `microsoft_code_sample_search`.
+3. Provide **Microsoft Learn URLs** in the Phase 2 References section.
 
-## Terminology
+## Key rules
 
-Always use current Microsoft product names. Never use retired names (for example, "Azure AD" must be "Microsoft Entra ID"). See the full rename table in `.github/copilot-instructions.md`.
+- Randomize the correct answer position across A, B, C, D.
+- Randomize the fictional company name from `references/fictional-companies.md`.
+- Follow all style rules from `references/style-guide.md`.
+- All Azure product names must use current terminology (no retired names).
+- No contractions. No trick wording. No fake services or flags.
 
 ## Output format (exact) -- two-phase delivery
 
@@ -57,7 +57,7 @@ B. `<choice>`
 C. `<choice>`
 D. `<choice>`
 
-*(Do NOT reveal the answer. Wait for the user to reply.)*
+_(Do NOT reveal the answer. Wait for the user to reply.)_
 
 ### Phase 2 (send after the user replies with their choice)
 
@@ -65,20 +65,12 @@ D. `<choice>`
 
 #### Rationale
 
-- A: <2 sentences. Sentence 1: state correct/incorrect and why. Sentence 2: context, misconception, or contrast with the correct answer.>
-- B: <same 2-sentence format>
-- C: <same 2-sentence format>
-- D: <same 2-sentence format>
+- A: <2 sentences>
+- B: <2 sentences>
+- C: <2 sentences>
+- D: <2 sentences>
 
 #### References
 
 - <Microsoft Learn URL 1>
 - <Microsoft Learn URL 2 if needed>
-
-## Style rules
-
-- No contractions.
-- No trick wording.
-- No negatives unless absolutely required; if used, bold the negative word.
-- Distractors must be plausible and real Azure options (no invented services/flags).
-- All Azure product names must use current terminology (no retired names).

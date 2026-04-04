@@ -1,6 +1,6 @@
 ---
 name: az104-study-planner
-description: Generates a personalized AZ-104 study plan based on the user's self-assessed confidence across exam skill areas, prioritizing weak areas with estimated hours and Microsoft Learn module links.
+description: Generates a personalized AZ-104 study plan based on the user's self-assessed confidence across exam skill areas, prioritizing weak areas with estimated hours and Microsoft Learn module links. Use when the user asks for a study plan, is unsure what to study, or wants exam prep guidance.
 ---
 
 # Skill: az104.study_planner.personalized
@@ -12,8 +12,8 @@ description: Generates a personalized AZ-104 study plan based on the user's self
 **Required sources:**
 
 - `references/az104-objectives.md` (AZ-104 skills measured, April 2025)
-- Microsoft Learn (access via Context7 and Copilot web search for current Learn module URLs)
-- Context7 MCP (resolve Learn module links and verify they are current)
+- Microsoft Learn (access via the **Microsoft Learn MCP server** using `microsoft_docs_search` for current Learn module URLs)
+- Use `microsoft_docs_fetch` to verify Learn module links are current and active
 
 ## Workflow
 
@@ -38,11 +38,11 @@ description: Generates a personalized AZ-104 study plan based on the user's self
    - Within equal confidence levels, prioritize areas with higher exam weight.
    - For each area, provide:
      - Estimated study hours (weak: 8-12 hours, moderate: 4-6 hours, strong: 1-2 hours).
-     - Two to three specific Microsoft Learn module links (grounded via Context7 or web search).
+     - Two to three specific Microsoft Learn module links (grounded via Microsoft Learn MCP server; do not invent URLs).
      - Key objectives to focus on (from `references/az104-objectives.md`).
    - Include a total estimated hours range at the bottom.
 
-4. **Offer to start practicing.** After presenting the plan, ask: "Would you like to start with practice questions or a lab on **[first recommended topic]**?"
+4. **Offer to start practicing.** After presenting the plan, ask: "Would you like to start with practice questions or a hands-on lab on **[first recommended topic]**?"
 
 ## Output format
 
@@ -79,7 +79,7 @@ Ready to start? I can generate practice questions or a hands-on lab on **[first 
 ## Guardrails
 
 - Do not skip any of the five skill areas. Even "strong" areas should appear in the plan with a light review recommendation.
-- Do not invent Microsoft Learn module URLs. Use Context7 or web search to find real, current module links.
+- Do not invent Microsoft Learn module URLs. Use the Microsoft Learn MCP server (`microsoft_docs_search`) to find real, current module links.
 - Treat "unknown" confidence the same as "weak."
 - Always use current Microsoft product names. See the rename table in `.github/copilot-instructions.md`.
 - No contractions.

@@ -4,82 +4,82 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a **content-only repository** for an AZ-104 certification study buddy powered by GitHub Copilot agents. There is no application code, no build system, and no tests. The primary artifacts are agent definitions, skill specs, prompt templates, and MCP server configurations.
+Content-only repository for an AZ-104 certification study buddy powered by GitHub Copilot agents. No application code, no build system, no tests. Artifacts are agent definitions, skill specs, prompt templates, and MCP server configurations.
 
 ## Architecture
 
-```text
-.github/
-  agents/az104-cert-buddy-agent.agent.md   # Main Copilot agent definition
-  skills/
-    az104-item-creator/SKILL.md            # Exam question generation skill
-    az104-lab-creator/SKILL.md             # Practice lab generation skill
-    az104-study-planner/SKILL.md           # Personalized study plan skill
-  prompts/
-    az104-practice-questions.prompt.md     # Prompt template for practice questions
-    az104-practice-lab.prompt.md           # Prompt template for practice labs
-  copilot-instructions.md                  # Copilot workspace instructions + rename table
-  workflows/
-    validate.yml                           # CI validation pipeline (non-blocking)
-    mlc-config.json                        # Markdown link checker config
-.vscode/
-  mcp.json                                # MCP server definitions (workspace-scoped)
-  extensions.json                          # Recommended VS Code extensions
-.editorconfig                              # Editor formatting consistency
-references/
-  az104-objectives.md                      # AZ-104 skills-measured reference (April 2025)
-  fictional-companies.md                   # Microsoft fictional company names for scenarios
-  style-guide.md                           # Microsoft Writing Style Guide key principles
-  style-guide.pdf                          # Microsoft Writing Style Guide (full source PDF)
-CONTRIBUTING.md                            # Contribution guidelines and PR process
-SECURITY.md                                # Security policy and vulnerability reporting
-```
+The **az104-cert-buddy-agent** (`.github/agents/`) orchestrates three auto-discovered skills (`.github/skills/`):
 
-### How It Works
+- **az104-item-creator** -- Exam-realistic practice questions with two-phase interactive delivery (question first, rationale after user answers). Supports "hint" and "skip" commands.
+- **az104-lab-creator** -- 10-20 minute self-validating labs with validation gates and mandatory cleanup.
+- **az104-study-planner** -- Personalized study plans based on confidence self-assessment across five AZ-104 skill areas.
 
-The **az104-cert-buddy-agent** orchestrates three skills:
+Three prompt templates (`.github/prompts/`) provide slash-command entry points: `/az104-practice-question`, `/az104-practice-lab`, `/az104-study-planner`.
 
-- **az104-item-creator**: Generates exam-realistic AZ-104 practice questions (multiple-choice, scenario-first stems, 4 options, rationale for each). Supports "hint" (eliminate a distractor) and "skip" (reveal the answer) during interactive delivery.
-- **az104-lab-creator**: Generates 10-20 minute self-validating practice labs with prerequisites, tasks, validation gates, troubleshooting, and cleanup.
-- **az104-study-planner**: Generates personalized study plans based on user confidence ratings across the five AZ-104 skill areas.
+All content is grounded via a single MCP server: **az104buddy-mslearn** (`https://learn.microsoft.com/api/mcp`, free, no API key) providing `microsoft_docs_search`, `microsoft_docs_fetch`, and `microsoft_code_sample_search`.
 
-All three skills enforce a strict grounding chain: **Microsoft Learn first** (accessed via Context7 and Copilot web search) -> **Context7 for CLI/PowerShell syntax** -> **Azure MCP for reality checks**.
+A parallel **AB-900** cert buddy implementation lives in `reference/` as a template. Do not modify it when editing AZ-104 files.
 
-Questions use a **two-phase interactive delivery**: Phase 1 presents only the stem and choices (no answer), then the agent waits for the user to reply. Phase 2 reveals the correct answer, 2-sentence-per-choice rationale, and references. Users can type "hint" to eliminate a distractor, "skip" to reveal the answer, or an unrecognized input triggers a prompt for A/B/C/D.
+### Skill Discovery (Critical Gotcha)
 
-### MCP Servers
-
-Defined in `.vscode/mcp.json` with IDs:
-
-- `az104buddy-azure` — Azure MCP via `npx @azure/mcp@latest` (validate commands, resource types, properties)
-- `az104buddy-context7` — Context7 (version-specific docs/snippets)
-- `az104buddy-markitdown` — MarkItDown (convert PDFs/Office docs to markdown)
+GitHub Copilot **does not** support a `skills:` field in agent YAML frontmatter. Skills are auto-discovered from `.github/skills/` folders based on `name` and `description` in SKILL.md frontmatter. The agent references skills by name in its Markdown body only.
 
 ### Cross-Reference Dependencies
 
-- **Prompt files** reference the agent via `agent: az104-cert-buddy-agent` in YAML frontmatter. If the agent `name` field changes, update all `.github/prompts/*.prompt.md` files.
-- **Agent file** references skills by their YAML frontmatter `name` (not folder name). If a skill is renamed, update the agent's `skills` list.
-- **Tool IDs** in agent and prompt files must match server IDs in `.vscode/mcp.json`.
+When renaming anything, update all dependents:
+- Agent `name` field -> all `.github/prompts/*.prompt.md` `agent:` fields
+- Skill `name` field -> agent Markdown body references
+- MCP server ID in `.vscode/mcp.json` -> agent and prompt `tools:` lists
 
-## Authoring Conventions
+## CI Validation
 
-- **Skill files**: YAML frontmatter (`name`, `description`) followed by Markdown body. The `name` field in frontmatter is the canonical skill identifier (not the folder name).
-- **Prompt files**: YAML frontmatter with `name`, `description`, `agent`, and `tools` fields followed by Markdown body.
-- **Agent files**: YAML frontmatter with `tools` and `skills` lists. Tool IDs must match MCP server IDs from `.vscode/mcp.json`.
-- **Plain ASCII only** — no curly quotes, no en dashes, no em dashes. Use straight quotes and `--`.
-- **No contractions** in any generated content.
-- **Microsoft style** — use official UI labels, sentence-style capitalization, and Microsoft instruction formatting.
-- **Current terminology only** — never use retired Azure product names (e.g., "Azure AD" -> "Microsoft Entra ID"). A full rename table lives in `copilot-instructions.md`.
-- Negatives only when required; if used, **CAP** + **bold** the negative word.
-- Distractors in questions must reference real Azure services/flags (never invent fake ones).
-- Labs must always include cleanup steps that remove all created resources.
-- **Rationale depth** — every choice explanation must be exactly 2 sentences (why correct/incorrect + context).
-- **Fictional companies** — use names from `references/fictional-companies.md` (Contoso, Fabrikam, Tailwind Traders, etc.) for scenario context in questions and labs.
+`.github/workflows/validate.yml` runs on PR to `main` (non-blocking, `continue-on-error: true`):
+
+1. **Retired terminology check** -- greps for `Azure AD`, `ADAL`, etc. (excludes copilot-instructions.md and CLAUDE.md which contain the rename table)
+2. **Non-ASCII check** -- greps for curly quotes, en dashes, em dashes
+3. **Contraction check** -- greps for `don't`, `doesn't`, `won't`, etc. (excludes CONTRIBUTING.md)
+4. **Markdown link check** -- validates URLs using mlc-config.json (10s timeout, retries on 429)
+
+## Terminology Rename Table
+
+Always use current names. This table is the most frequently needed reference when editing:
+
+| Retired | Current |
+| --- | --- |
+| Azure Active Directory (Azure AD) | Microsoft Entra ID |
+| Azure AD tenant | Microsoft Entra tenant |
+| Azure AD Connect | Microsoft Entra Connect |
+| Azure AD B2B / B2C | Microsoft Entra External ID |
+| Azure AD Domain Services | Microsoft Entra Domain Services |
+| Azure AD Conditional Access | Microsoft Entra Conditional Access |
+| Azure AD PIM | Microsoft Entra Privileged Identity Management |
+| Azure AD Identity Protection | Microsoft Entra ID Protection |
+| Azure AD application registrations | Microsoft Entra app registrations |
+| RBAC (standalone) | Azure role-based access control (Azure RBAC) on first use |
+| AKS (standalone) | Azure Kubernetes Service (AKS) on first use |
+| ASR | Azure Site Recovery on first use |
+
+If Microsoft Learn shows a different current name, prefer the Learn name.
+
+## Authoring Rules
+
+These are enforced across all generated content and are non-negotiable:
+
+- **Plain ASCII only** -- no curly quotes, no en/em dashes. Use `--` instead.
+- **No contractions** -- write "do not" not "don't".
+- **Microsoft Writing Style Guide** -- `references/style-guide.md` governs voice, capitalization, formatting. Key rules: sentence-style capitalization, **bold** for UI elements, input-neutral verbs (select not click, enter not type), Oxford comma, imperative mood in procedures.
+- **Answer randomization** -- correct answer position must be distributed across A/B/C/D, never always the same letter.
+- **Fictional company randomization** -- draw from the full 50+ list in `references/fictional-companies.md`, not always Contoso.
+- **Rationale depth** -- exactly 2 sentences per choice (why correct/incorrect + context).
+- **Distractors must be real** -- reference actual Azure services, flags, features. Never invent fake ones.
+- **Labs must include cleanup** -- every lab ends with resource deletion steps.
+- **Negatives** -- avoid; if required, **CAP** + **bold** the negative word.
 
 ## Default Behaviors
 
-When editing agent or skill content, preserve these defaults:
+Preserve these when editing agent or skill content:
 
-- If the user does not specify Portal vs CLI vs PowerShell, labs default to **Azure CLI**.
-- If the user does not specify a skill area, the agent picks one from the AZ-104 study guide.
-- Labs prefer the lowest-cost Azure resources and include a cost warning when that is not possible.
+- Labs default to **Azure CLI** when no tool preference is specified.
+- Agent picks a skill area from the AZ-104 study guide when none is specified.
+- Labs prefer lowest-cost Azure resources with cost warnings when unavoidable.
+- Questions use two-phase delivery: Phase 1 (question only, wait for answer), Phase 2 (evaluation with rationale and references).

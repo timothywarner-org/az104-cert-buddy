@@ -1,26 +1,26 @@
 ---
 name: az104-lab-creator
-description: Create short AZ-104 practice labs (10-20 minutes) that are executable and self-validating. Every lab includes prerequisites, exact tasks, validation steps, expected outputs, and cleanup. Use Azure MCP to validate feasibility (commands, resource types, properties, and outcomes).
+description: Create short AZ-104 practice labs (10-20 minutes) that are executable and self-validating. Every lab includes prerequisites, exact tasks, validation steps, expected outputs, and cleanup. Use when the user asks for a hands-on lab, practice exercise, or guided walkthrough.
 ---
 
 # Skill: az104.practice_labs.micro.validated
 
-**Description:** Create short AZ-104 practice labs (10-20 minutes) that are executable and self-validating. Every lab includes prerequisites, exact tasks, validation steps, expected outputs, and cleanup. Use Azure MCP to validate feasibility (commands, resource types, properties, and outcomes).
+**Description:** Create short AZ-104 practice labs (10-20 minutes) that are executable and self-validating. Every lab includes prerequisites, exact tasks, validation steps, expected outputs, and cleanup.
 
 ## Grounding
 
 **Required sources:**
 
-- Microsoft Learn (architecture + what is correct; access via Context7 and Copilot web search)
-- Azure MCP (validate that steps actually work as written)
-- Context7 MCP (if lab uses CLI/PowerShell modules or SDK snippets)
+- Microsoft Learn (primary truth source for architecture and correct configuration; access via the **Microsoft Learn MCP server** using `microsoft_docs_search` and `microsoft_docs_fetch`)
+- Microsoft Learn code samples (for CLI/PowerShell/Bicep accuracy; access via `microsoft_code_sample_search`)
 
 ## Style
 
 **Microsoft style:**
 
 - Use Microsoft instruction formatting conventions for UI labels, commands, and dialog names.
-- See references/style-guide.md for detailed Microsoft writing style rules.
+- See `references/style-guide.md` for detailed Microsoft writing style rules.
+- **Bold** for clickable UI elements. Input-neutral verbs: select (not click), enter (not type).
 
 ## Guardrails
 
@@ -30,7 +30,10 @@ description: Create short AZ-104 practice labs (10-20 minutes) that are executab
 - No ambiguous "click around until" steps.
 - Always include cleanup steps that remove created resources.
 - Always use current Microsoft product names. Never use retired names such as "Azure AD" (use "Microsoft Entra ID"), "Azure AD Connect" (use "Microsoft Entra Connect"), and so on. See the full rename table in `.github/copilot-instructions.md`. If a lab touches identity or governance, double-check every product name against current terminology.
-- Use fictional company names from references/fictional-companies.md for any scenario context in lab titles or descriptions.
+
+## Fictional company randomization (non-negotiable)
+
+Use fictional company names from `references/fictional-companies.md` for any scenario context in lab titles or descriptions. You MUST randomize the company selection -- do not default to Contoso for every lab. Draw from the full list of 50+ companies.
 
 ## Timebox guidance
 
@@ -42,16 +45,13 @@ If the lab uses resources that incur charges beyond the free tier, the cost warn
 
 ## Workflow
 
-1. Choose a single AZ-104 objective and state it at the top.
-2. Ground the intended configuration in Microsoft Learn (what correct means).
+1. Choose a single AZ-104 objective from `references/az104-objectives.md` and state it at the top.
+2. Ground the intended configuration in Microsoft Learn using `microsoft_docs_search` (what correct means).
 3. Draft the lab steps using either Azure portal or CLI/PowerShell (pick one primary path).
-4. Invoke Azure MCP to validate:
-   - Resource providers/features exist.
-   - CLI/PowerShell commands are valid.
-   - Properties/flags used are real.
-   - Validation queries actually detect success/failure.
-5. Add verification gates after each major step (fast checks).
-6. Add cleanup that exactly reverses the work.
+4. Use `microsoft_code_sample_search` to verify CLI/PowerShell commands are valid and current.
+5. Use `microsoft_docs_fetch` for full page detail on any command or configuration step.
+6. Add verification gates after each major step (fast checks).
+7. Add cleanup that exactly reverses the work.
 
 ## Output format
 
@@ -71,7 +71,7 @@ lab:
       steps: |
         <Numbered steps only when sequencing matters. Use exact UI labels or exact commands.>
       validation:
-        - "<Azure MCP validation query/command + what success looks like>"
+        - "<Validation command + what success looks like>"
     - name: "<Task 2 name>"
       steps: |
         <...>
@@ -84,7 +84,7 @@ lab:
     steps: |
       <Exact resource deletion / rollback steps>
     validation:
-      - "<Azure MCP check that resources are gone>"
+      - "<Check that resources are gone>"
   references:
     - "<Microsoft Learn URL(s)>"
 ```
@@ -97,11 +97,11 @@ Labs are delivered in full (all sections in a single message). Unlike practice q
 
 - "Single objective, single outcome."
 - "Every task has an explicit validation gate."
-- "Azure MCP confirms feasibility and correctness."
 - "Cleanup is complete and safe."
 - "Instructions use Microsoft formatting rules for UI labels and commands."
 - "All Azure product names use current terminology (no retired names)."
 - "No contractions in any lab text."
+- "Fictional company is randomized (not always Contoso)."
 
 ---
 
@@ -119,8 +119,8 @@ Inputs:
 
 Requirements:
 
-1. Ground the lab outcome in Microsoft Learn first.
-2. Use Azure MCP to validate commands, resource properties, and success checks.
-3. Use Context7 MCP for any CLI/PowerShell module specifics.
-4. Output using output_format exactly.
+1. Ground the lab outcome in Microsoft Learn first using the Microsoft Learn MCP server.
+2. Use microsoft_code_sample_search for CLI/PowerShell accuracy.
+3. Output using output_format exactly.
+4. Randomize the fictional company name from references/fictional-companies.md.
 ```
